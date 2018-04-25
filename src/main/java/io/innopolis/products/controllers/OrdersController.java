@@ -8,6 +8,8 @@ import io.innopolis.products.repositories.OrderRepository;
 import io.innopolis.products.repositories.ProductRepository;
 import io.innopolis.products.repositories.UserRepository;
 import io.innopolis.products.services.UserService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,6 +22,8 @@ import java.util.Set;
 
 @Controller
 public class OrdersController {
+
+    private static Logger logger = LogManager.getLogger(OrdersController.class);
 
     @Autowired
     private ProductRepository productRepository;
@@ -40,6 +44,9 @@ public class OrdersController {
 
     @GetMapping("/orders")
     public String ordersList(Model model){
+
+        logger.info("Get request for orders is done");
+
         model.addAttribute("products", productRepository.findAll());
         model.addAttribute("orders", orderRepository.findAll());
         return "orders";
@@ -49,8 +56,9 @@ public class OrdersController {
     @ResponseBody
     public String saveOrder(@ModelAttribute("user") @Valid UserOrderDto userDto, BindingResult result, @RequestParam(value="productIds[]") Long[] productIds){
 
-        User customer = userService.findByUsername(userDto.getUsername());
+        logger.info("Request for creating an order is done");
 
+        User customer = userService.findByUsername(userDto.getUsername());
         CustomerOrder customerOrder = new CustomerOrder();
         customerOrder.setCustomer(userRepository.findById(customer.getId()).orElse(null));
         Set<Product> productSet = new HashSet<Product>();
@@ -65,13 +73,21 @@ public class OrdersController {
         customerOrder.setTotal(total);
         orderRepository.save(customerOrder);
 
+        logger.info("Order is created");
+
         return customerOrder.getOrderId().toString();
     }
 
     @PostMapping("/removeorder")
     @ResponseBody
     public String removeOrder(@RequestParam Long Id){
+
+        logger.info("Request for removing an order is done");
+
         orderRepository.deleteById(Id);
+
+        logger.info("Order is removed");
+
         return Id.toString();
     }
 }

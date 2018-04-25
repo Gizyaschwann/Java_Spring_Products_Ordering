@@ -14,7 +14,6 @@ public class ProductsApplication implements CommandLineRunner {
 	@Autowired
     ProductRepository productRepository;
 
-
 	@Autowired
     OrderRepository orderRepository;
 
